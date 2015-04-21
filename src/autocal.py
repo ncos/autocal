@@ -3,11 +3,10 @@
 db_file_meat = '../db/meat.md'
 db_file_fish = '../db/fish.md'
 
-# Google calendar specific functions
-from gcalcli import *
-gcal = gcalcli(client_id='996124500222-lrv2poibi8ll15cg25s1bs8eu7atjfk2.apps.googleusercontent.com',
-               client_secret='zmQliJX0STI81we6csuy5wzb',
-               refreshCache=True)
+cal_cid = '996124500222-lrv2poibi8ll15cg25s1bs8eu7atjfk2.apps.googleusercontent.com'
+cal_seq = 'zmQliJX0STI81we6csuy5wzb'
+
+
 
 def setCal(cal_name):
     matches = []
@@ -38,10 +37,12 @@ class Food:
         self.price = 0.0
         self.avaluable_courses = []
         self.timesaweek = -1
+        self.sTime, self.eTime = GetTimeFromStr('31/12/1984 00:00', 5)
+
 
 class OneDayShedule:
     def __init__(self):
-        self.food = []
+        self.foods = []
         self.snack = []
     
     def setTIME(self, eTimeStart):
@@ -52,9 +53,13 @@ class OneDayShedule:
         eDistance = 180
         eDuration = 30
         self.sTimes = [(eTimeStart + timedelta(minutes=float(i*eDistance))).isoformat()
-                                                       for i in xrange(len(self.food))]
+                                                       for i in xrange(len(self.foods))]
         self.eTimes = [(eTimeStart + timedelta(minutes=float(i*eDistance+eDuration))).isoformat()
-                                                       for i in xrange(len(self.food))]                                                       
+                                                       for i in xrange(len(self.foods))]                                                    
+        for (i, food_list) in enumerate(self.foods):
+            for food in food_list:
+                food.sTime = self.sTimes[i]
+                food.eTime = self.eTimes[i]
         
     def setFoodI(self, i, food_tuple):
         '''
@@ -63,20 +68,23 @@ class OneDayShedule:
         '''
         if (i < 1): 
             raise ValueError("'i' can be in range 1..inf! (i="+str(i)+")") 
-        while len(self.food) < i:
-            self.food.append([Food()]) # Extending with dummy placeholders
-        self.food[i - 1] = food_tuple
+        while len(self.foods) < i:
+            self.foods.append([Food()]) # Extending with dummy placeholders
+        self.foods[i - 1] = food_tuple
+    
+    def __repr__(self):
+        pass
 
-class Shedule:
-    def __init__(self):
-        self.food_meat = []
-        self.food_fish = []
-
-    def addOneDayShedule(self, ods, date):
-         
-
-
-
+    def send(self):
+        # Google calendar specific functions
+        from gcalcli import *
+        gcal = gcalcli(client_id=cal_cid, client_secret=cal_seq, refreshCache=True)       
+        setCal('red')
+        n, m = ParseReminder('5m popup')
+        for (i, food_list) in enumerate(self.foods):
+            text = ""
+            for food in food_list:
+                text += food.name + '\n'
 
 
 def getListOfFood(file_name):
