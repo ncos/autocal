@@ -21,16 +21,20 @@ import signal
 from datetime import datetime, timedelta, date
 from unicodedata import east_asian_width
 
+from apiclient.discovery import build
+#from oauth2client.tools import run
+from oauth2client import tools
+
+
 # Required 3rd party libraries
 try:
     from dateutil.tz import tzlocal
     from dateutil.parser import parse
     import gflags
     import httplib2
-    from apiclient.discovery import build
     from oauth2client.file import Storage
     from oauth2client.client import OAuth2WebServerFlow
-    from oauth2client.tools import run
+
 except ImportError as e:
     print "ERROR: Missing module - %s" % e.args[0]
     sys.exit(1)
@@ -484,7 +488,8 @@ class gcalcli:
             credentials = storage.get()
 
             if credentials is None or credentials.invalid:
-                credentials = run(
+                #credentials = run(
+                credentials = tools.run_flow(
                     OAuth2WebServerFlow(
                         client_id=self.client_id,
                         client_secret=self.client_secret,
